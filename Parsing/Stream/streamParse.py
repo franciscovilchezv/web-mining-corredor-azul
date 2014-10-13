@@ -14,7 +14,11 @@ class Tweet:
     def __init__(self,post):
         self.id_tweet    = post["id"]
         self.id_author   = post["user"]["id"]
-        self.body_tweet  = post["text"].replace('\n',". ")
+
+        texto = post["text"].replace('\n',". ")
+        texto = texto.replace('\r'," ")
+        self.body_tweet  = texto
+
         self.date        = post["created_at"]
 
         if "RT" in post["text"]: 
