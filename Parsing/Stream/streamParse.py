@@ -61,8 +61,10 @@ def main():
             print tweetauxiliar.to_CSV()
             print
 
-
-            escritor.write(tweetauxiliar.to_CSV())
+            if (tweetauxiliar.esRT == 0):
+                escritor.write(tweetauxiliar.to_CSV())
+            else:
+                pass
 
             contador = contador + 1
 
