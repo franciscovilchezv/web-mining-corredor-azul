@@ -25,7 +25,7 @@ class Tweet:
 
         self.date        = post["created_at"]
 
-        if ("retweeted_status" in post.keys()) or ((self.body_tweet[0] == 'R') and (self.body_tweet[1] == 'T')):
+        if ("retweeted_status" in post.keys()) or ("RT" in self.body_tweet[:2]):
             self.esRT = 1
         else: 
             self.esRT = 0
@@ -99,7 +99,6 @@ def limpieza_de_datos(vector_tweets):
             item.body_tweet = item.body_tweet.replace(url["url"].encode('utf-8'),'')
 
 
-
         # Limpieza de hashtags (Se reemplaza #CorredorAzul por servicio y se eliminan los restantes)
 
         item.body_tweet = item.body_tweet.replace("#CorredorAzul","servicio")
@@ -150,7 +149,12 @@ def main():
 
     output.close()
     output_original.close()
-    print "Fin del procesamiento: output.csv"
+
+    print "Fin del procesamiento"
+    print
+    print "Archivo limpieza de tweets:  output.csv"
+    print "Archivo sin retweets:        output_original.csv"
+    print
 
 
 main()
