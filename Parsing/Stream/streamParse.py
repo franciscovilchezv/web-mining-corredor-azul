@@ -25,7 +25,7 @@ class Tweet:
 
         self.date        = post["created_at"]
 
-        if ("retweeted_status" in post.keys()) or ("RT" in self.body_tweet[:2]):
+        if ("retweeted_status" in post.keys()) or ("RT" in self.body_tweet.split()):
             self.esRT = 1
         else: 
             self.esRT = 0
