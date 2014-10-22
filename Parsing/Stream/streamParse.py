@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 import json
 
+import csv
+
+DELIMITER = '|'
+
 class Tweet:
 
     id_tweet    = None
@@ -17,7 +21,7 @@ class Tweet:
 
         texto = post["text"].replace('\n',". ")
         texto = texto.replace('\r'," ")
-        self.body_tweet  = texto
+        self.body_tweet  = str(texto.encode('utf-8'))
 
         self.date        = post["created_at"]
 
@@ -28,26 +32,39 @@ class Tweet:
 
         self.estado      = 0 #Sin calificar
 
-
+    
     def to_CSV(self):
         output = ""
-        output += str(self.id_tweet) + "||"
-        output += str(self.id_author) + "||"
-        output += str(self.body_tweet.encode('utf-8')) + "||"
-        output += str(self.date) + "||"
-        output += str(self.esRT) + "||"
+        output += str(self.id_tweet) + DELIMITER
+        output += str(self.id_author) + DELIMITER
+        output += str(self.body_tweet) + DELIMITER
+        output += str(self.date) + DELIMITER
+        output += str(self.esRT) + DELIMITER
         output += str(self.estado) + "\n"
 
         return output
+    
+
+    def to_sequence(self):
+
+        sequence = [self.id_tweet, self.id_author, self.body_tweet, self.date, self.esRT, self.estado]
+
+        return sequence
+
 
 def main():
+
+    print "Procesando..."
 
     with open("corredor_azul_stream.txt",'r') as f:
         lines = f.readlines()
 
-    escritor = open("stream.out",'w')
+    output = open('output.csv', 'wb' )
+    writer = csv.writer(output, delimiter=DELIMITER)
 
     contador = 0
+
+    vector_tweets = []
 
     for line in lines:
 
@@ -57,12 +74,10 @@ def main():
 
             tweetauxiliar = Tweet(var_json)
 
-            print
-            print tweetauxiliar.to_CSV()
-            print
+            #print tweetauxiliar.to_CSV()            
 
             if (tweetauxiliar.esRT == 0):
-                escritor.write(tweetauxiliar.to_CSV())
+                vector_tweets.append(tweetauxiliar.to_sequence())
             else:
                 pass
 
@@ -71,6 +86,11 @@ def main():
         else:
             pass
 
+    writer.writerows(vector_tweets)
 
+    output.close()
+
+    print "Fin del procesamiento: output.csv"
+    
 main()
 
