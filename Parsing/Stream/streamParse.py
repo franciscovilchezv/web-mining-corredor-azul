@@ -25,7 +25,7 @@ class Tweet:
 
         self.date        = post["created_at"]
 
-        if "retweeted_status" in post.keys():
+        if ("retweeted_status" in post.keys()) or ((self.body_tweet[0] == 'R') and (self.body_tweet[1] == 'T')):
             self.esRT = 1
         else: 
             self.esRT = 0
