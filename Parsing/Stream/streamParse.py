@@ -3,6 +3,9 @@ import json
 
 import csv
 
+import re
+from nltk.corpus import stopwords
+
 DELIMITER = '|'
 
 class Tweet:
@@ -75,8 +78,44 @@ def limpieza_retweets(vector_tweets):
 
     return dev
 
+
+
+def limpiezaNLTK(body_tweet):
+
+    
+    scentence = body_tweet
+
+    #We only want to work with lowercase for the comparisons
+    scentence = scentence.lower() 
+
+    #remove punctuation and split into seperate words
+    words = re.findall(r'\w+', scentence,flags = re.UNICODE | re.LOCALE) 
+
+    #This is the simple way to remove stop words
+    important_words=[]
+    cadena = ""
+    for word in words:
+        if word not in stopwords.words('spanish'):
+            important_words.append(word)
+            cadena = cadena + " " + word
+
+    
+    if ((cadena != "") and (' ' in cadena[0])):
+        cadena = cadena[1:]
+
+    return cadena
+
+
+    #This is the more pythonic way
+    #important_words = filter(lambda x: x not in stopwords.words('spanish'), words)
+
+    #print important_words 
+
+
+
 def limpieza_de_datos(vector_tweets):
     dev = []
+    porcentaje = 0
 
     for var_json in vector_tweets:
 
@@ -114,6 +153,17 @@ def limpieza_de_datos(vector_tweets):
                 item.body_tweet = item.body_tweet.replace(media["url"].encode('utf-8'),'')
 
 
+        # LimpiezaNLTK
+        item.body_tweet = limpiezaNLTK(item.body_tweet)
+        if (item.body_tweet == ""):
+            continue
+
+        
+        # Loading
+        if ((porcentaje % 500) == 0):
+            print('...')
+        porcentaje = porcentaje + 1
+
         # Agrego a los que sobrevivieron
         dev.append(item)
 
@@ -150,7 +200,7 @@ def main():
     output.close()
     output_original.close()
 
-    print "Fin del procesamiento"
+    print "...Fin del procesamiento"
     print
     print "Archivo limpieza de tweets:  output.csv"
     print "Archivo sin retweets:        output_original.csv"
