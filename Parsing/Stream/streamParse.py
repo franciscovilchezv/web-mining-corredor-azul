@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 
+
 import unicodedata
 
 import csv
@@ -9,6 +10,7 @@ import re
 from nltk.corpus import stopwords
 
 DELIMITER = '|'
+
 
 #ARCHIVO_ENTRADA = "Corredor Azul/Modificados/Dias/1/1.txt"
 ARCHIVO_SALIDA_ORIGINAL = "Corredor Azul/Modificados/Dias/corredor_azul_stream.csv"
@@ -25,6 +27,7 @@ ARCHIVOS_ENTRADA = [
 #ARCHIVO_ENTRADA = "Dia1/corredor_azul_stream.txt"
 #ARCHIVO_SALIDA_ORIGINAL = "Dia1/corredor_azul_stream.csv"
 #ARCHIVO_SALIDA = 'Dia1/output.csv'
+
 
 class Tweet:
 
@@ -191,6 +194,7 @@ def main():
 
     print "Procesando..."
 
+
     output = open(ARCHIVO_SALIDA, 'wb')
     writer = csv.writer(output, delimiter=DELIMITER)
 
@@ -230,13 +234,16 @@ def main():
         writer_original.writerows(sequenciar_tweets(limpieza_retweets(vector_tweets)))    
 
 
+
     output.close()
     output_original.close()
 
     print "...Fin del procesamiento"
     print
+
     print "Archivo limpieza de tweets:  " + ARCHIVO_SALIDA
     print "Archivo sin retweets: " + ARCHIVO_SALIDA_ORIGINAL
+
     print
 
 
