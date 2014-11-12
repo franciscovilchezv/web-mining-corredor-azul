@@ -13,6 +13,7 @@ class Tweet:
 	date        = None
 	esRT        = None
 	estado      = None
+	cant_terminos = None
 
 	def __init__(self,post):
 		self.id_tweet    = post[0]
@@ -23,12 +24,13 @@ class Tweet:
 		self.date        = post[3]
 		self.esRT = post[4]
 		self.estado = post[5]
+		self.cant_terminos = post[6]
 
 def main():
 
 	print "Inicio..."
 
-	with open("output.csv",'rb') as csvfile:
+	with open("Corredor Azul/Modificados/Dias/output.csv",'rb') as csvfile:
 		lines = csvfile.readlines()
 
 
