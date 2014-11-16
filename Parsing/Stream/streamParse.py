@@ -26,6 +26,7 @@ class Tweet:
 
     id_tweet    = None
     id_author   = None
+    tweet_original  = None
     body_tweet  = None
     date        = None
     esRT        = None
@@ -39,6 +40,9 @@ class Tweet:
 
         texto = post["text"].replace('\n',". ")
         texto = texto.replace('\r'," ")
+
+        self.tweet_original = str(texto.encode('utf-8'))
+
         self.body_tweet  = str(texto.encode('utf-8'))
 
         self.date        = post["created_at"]
@@ -48,7 +52,7 @@ class Tweet:
         else: 
             self.esRT = 0
 
-        self.estado      = 0 # Sin calificar
+        self.estado      = 0 # Sin calificar (se agina automaticamente de acuerdo a las caritas)
         self.cant_terminos = 0 # se asignara el valor correcto luego de la limpieza
 
     
@@ -56,6 +60,7 @@ class Tweet:
         output = ""
         output += str(self.id_tweet) + DELIMITER
         output += str(self.id_author) + DELIMITER
+        output += str(self.tweet_original) + DELIMITER
         output += str(self.body_tweet) + DELIMITER
         output += str(self.date) + DELIMITER
         output += str(self.esRT) + DELIMITER
@@ -68,9 +73,9 @@ class Tweet:
     def to_sequence(self,tipo):
 
         if(tipo == 1):
-            sequence = [self.id_tweet, self.id_author, self.body_tweet, self.date, self.esRT, self.estado, self.cant_terminos]
+            sequence = [self.id_tweet, self.id_author, self.tweet_original, self.body_tweet, self.date, self.esRT, self.estado, self.cant_terminos]
         else:
-            sequence = [self.id_tweet, self.id_author, self.body_tweet, self.date, self.esRT, str(0)]
+            sequence = [self.id_tweet, self.id_author, self.tweet_original, self.body_tweet, self.date, self.esRT, str(0)]
 
         return sequence
 
@@ -149,7 +154,6 @@ def limpieza_de_datos(vector_tweets):
         if (item.esRT):
             continue
 
-
         # Valorizacion automatica por los emoticones en el body_tweet :) :D =) =( :(
         happy_faces = [':)', ':D', '=)', '(:', '(=', ';)']
         sad_faces = ['=(',':(','):', ')=']
@@ -205,7 +209,6 @@ def limpieza_de_datos(vector_tweets):
 
 
         # Limpieza de fotos (Se borrará el link de la foto ubicado en el texto)
-
         if "extended_entities" in var_json.keys():
             for media in var_json["extended_entities"]["media"]:
                 item.body_tweet = item.body_tweet.replace(media["url"].encode('utf-8'),'')
@@ -213,8 +216,6 @@ def limpieza_de_datos(vector_tweets):
 
         # LimpiezaNLTK
         item.body_tweet = limpiezaNLTK(item.body_tweet)
-        if (item.body_tweet == ""):
-            continue
 
 
         # Limpieza de palabras con longitud menor a 3
@@ -226,11 +227,17 @@ def limpieza_de_datos(vector_tweets):
         # Guardar la cantidad de terminos que quedaron
         item.cant_terminos = len(item.body_tweet.split())
 
-        
+
+        # Elimino los que quedaron vacios
+        if (item.body_tweet == ""):
+            continue
+
+
         # Loading
         if ((porcentaje % 500) == 0):
             print('...')
         porcentaje = porcentaje + 1
+
 
         # Agrego a los que sobrevivieron
         dev.append(item)
@@ -248,7 +255,6 @@ def main():
     output_original = open(ARCHIVO_SALIDA_ORIGINAL, 'wb')
     writer_original = csv.writer(output_original, delimiter=DELIMITER)
 
-
     for in_file in ARCHIVOS_ENTRADA:
 
         print "Procesando archivo: " + in_file
@@ -257,7 +263,7 @@ def main():
             lines = f.readlines()
 
         vector_tweets           = []    # Arreglo de clase Tweets
-        vector_tweets_limpio    = []    # Arreglo de Tweets putificados
+        vector_tweets_limpio    = []    # Arreglo de Tweets purificados
         vector_tweets_sequence  = []    # Arreglo de Tweets.to_sequence()
 
         for line in lines:

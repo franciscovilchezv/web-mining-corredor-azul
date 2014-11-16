@@ -9,6 +9,7 @@ class Tweet:
 
 	id_tweet    = None
 	id_author   = None
+	tweet_original = None
 	body_tweet  = None
 	date        = None
 	esRT        = None
@@ -19,12 +20,13 @@ class Tweet:
 		self.id_tweet    = post[0]
 		self.id_author   = post[1]
 
-		self.body_tweet  = post[2].split()
+		self.tweet_original = post[2]
+		self.body_tweet  = post[3].split()
 
-		self.date        = post[3]
-		self.esRT = post[4]
-		self.estado = post[5]
-		self.cant_terminos = post[6]
+		self.date        = post[4]
+		self.esRT = post[5]
+		self.estado = post[6]
+		self.cant_terminos = post[7]
 
 def main():
 
