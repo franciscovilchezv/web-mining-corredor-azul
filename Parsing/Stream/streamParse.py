@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 
+import string
 
 import unicodedata
 
@@ -20,6 +21,29 @@ ARCHIVOS_ENTRADA = [
     "Corredor Azul/Modificados/Dias/3/3.txt",
     "Corredor Azul/Modificados/Dias/4/4.txt",
     "Corredor Azul/Modificados/Dias/5/5.txt"
+]
+
+PUNTUACIONES = [
+    ',',
+    '.',
+    ':',
+    ';',
+    '?',
+    '¿',
+    '!',
+    '¡',
+    '\"',
+    '\'',
+    '(',
+    ')',
+    '[',
+    ']',
+    '{',
+    '}',
+    '*',
+    '&',
+    '+',
+    '-',
 ]
 
 class Tweet:
@@ -115,18 +139,24 @@ def limpiezaNLTK(body_tweet):
     scentence = body_tweet
 
     #We only want to work with lowercase for the comparisons
-    scentence = scentence.lower() 
+    scentence = scentence.lower()
 
     #remove punctuation and split into seperate words
-    words = re.findall(r'\w+', scentence,flags = re.UNICODE | re.LOCALE) 
+    scentence = scentence.translate(string.maketrans("",""), string.punctuation)
+
+    # split
+    words = scentence.split() #re.findall(r'\w+', scentence,flags =  0) 
 
     #This is the simple way to remove stop words
     important_words=[]
     cadena = ""
     for word in words:
-        if word not in stopwords.words('spanish'):
-            important_words.append(word)
-            cadena = cadena + " " + word
+        try:
+            if word not in stopwords.words('spanish'):
+                important_words.append(word)
+                cadena = cadena + " " + word
+        except:
+            pass
 
     
     if ((cadena != "") and (' ' in cadena[0])):
@@ -193,7 +223,7 @@ def limpieza_de_datos(vector_tweets):
 
 
         # Limpieza de hashtags (Se reemplaza #CorredorAzul por servicio y tambien 'corredor azul' y 'corredorazul' y se eliminan los restantes)
-        item.body_tweet = item.body_tweet.decode('unicode_escape').encode('ascii','ignore')
+        #item.body_tweet = item.body_tweet.decode('unicode_escape').encode('ascii','replace')
 
         item.body_tweet = item.body_tweet.replace("#CorredorAzul","servicio")
 
@@ -221,7 +251,8 @@ def limpieza_de_datos(vector_tweets):
         # Limpieza de palabras con longitud menor a 3
         for palabra in item.body_tweet.split():
             if (len(palabra) < 3):
-                item.body_tweet = item.body_tweet.replace(str(palabra),'')
+                insensitive_string = re.compile(re.escape(palabra), re.IGNORECASE)
+                item.body_tweet = insensitive_string.sub('', item.body_tweet)
 
 
         # Guardar la cantidad de terminos que quedaron
