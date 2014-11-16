@@ -15,10 +15,10 @@ ARCHIVO_SALIDA_ORIGINAL = "Corredor Azul/Modificados/Dias/corredor_azul_stream.c
 ARCHIVO_SALIDA = 'Corredor Azul/Modificados/Dias/output.csv'
 
 ARCHIVOS_ENTRADA = [
-#    "Corredor Azul/Modificados/Dias/1/1.txt",
-#    "Corredor Azul/Modificados/Dias/2/2.txt",
-#    "Corredor Azul/Modificados/Dias/3/3.txt",
-#    "Corredor Azul/Modificados/Dias/4/4.txt",
+    "Corredor Azul/Modificados/Dias/1/1.txt",
+    "Corredor Azul/Modificados/Dias/2/2.txt",
+    "Corredor Azul/Modificados/Dias/3/3.txt",
+    "Corredor Azul/Modificados/Dias/4/4.txt",
     "Corredor Azul/Modificados/Dias/5/5.txt"
 ]
 
@@ -151,7 +151,7 @@ def limpieza_de_datos(vector_tweets):
 
 
         # Valorizacion automatica por los emoticones en el body_tweet :) :D =) =( :(
-        happy_faces = [':)', ':D', '=)', '(:', 'D:', '(=', ';)']
+        happy_faces = [':)', ':D', '=)', '(:', '(=', ';)']
         sad_faces = ['=(',':(','):', ')=']
 
         felicidad = False
