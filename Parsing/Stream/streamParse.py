@@ -3,6 +3,9 @@ import json
 
 import string
 
+import warnings
+warnings.filterwarnings("ignore")
+
 import unicodedata
 
 import csv
@@ -20,30 +23,8 @@ ARCHIVOS_ENTRADA = [
     "Corredor Azul/Modificados/Dias/2/2.txt",
     "Corredor Azul/Modificados/Dias/3/3.txt",
     "Corredor Azul/Modificados/Dias/4/4.txt",
-    "Corredor Azul/Modificados/Dias/5/5.txt"
-]
-
-PUNTUACIONES = [
-    ',',
-    '.',
-    ':',
-    ';',
-    '?',
-    '¿',
-    '!',
-    '¡',
-    '\"',
-    '\'',
-    '(',
-    ')',
-    '[',
-    ']',
-    '{',
-    '}',
-    '*',
-    '&',
-    '+',
-    '-',
+    "Corredor Azul/Modificados/Dias/5/5.txt",
+    "../Search/output.csv"
 ]
 
 class Tweet:
@@ -58,7 +39,18 @@ class Tweet:
     cant_terminos = None
 
 
-    def __init__(self,post):
+    def __init__(self):
+        self.id_tweet    = None
+        self.id_author   = None
+        self.tweet_original  = None
+        self.body_tweet  = None
+        self.date        = None
+        self.esRT        = None
+        self.estado      = None
+        self.cant_terminos = None
+        
+
+    def load_json(self,post):
         self.id_tweet    = post["id"]
         self.id_author   = post["user"]["id"]
 
@@ -78,6 +70,24 @@ class Tweet:
 
         self.estado      = 0 # Sin calificar (se agina automaticamente de acuerdo a las caritas)
         self.cant_terminos = 0 # se asignara el valor correcto luego de la limpieza
+
+    def load_csv(self,post):
+        
+        #print post
+
+        self.id_tweet    = post[0]
+        self.id_author   = post[1]
+
+        texto = post[2].replace('\n',". ")
+        texto = texto.replace('\r'," ")
+
+        self.tweet_original = texto
+        self.body_tweet  = texto
+
+        self.date        = post[4]
+        self.esRT = post[5]
+        self.estado = post[6]
+        self.cant_terminos = post[7]
 
     
     def to_CSV(self):
@@ -116,12 +126,23 @@ def sequenciar_tweets(vector_tweets_limpio,tipo):
 
     return dev
 
-def limpieza_retweets(vector_tweets):
+def limpieza_retweets(vector_tweets,fuente):
     dev = []
 
     for var_json in vector_tweets:
 
-        item = Tweet(var_json)
+        item = Tweet()
+        if(fuente == "txt"):
+            item.load_json(var_json)
+        else:
+            try:
+                if(len(var_json.split("|")) == 8):
+                    item.load_csv(var_json.split("|"))
+                else:
+                    continue
+            except:
+                continue
+
 
         # Eliminar RT
         if (item.esRT):
@@ -171,18 +192,64 @@ def limpiezaNLTK(body_tweet):
     #print important_words 
 
 
+def limpia_mal(tweet):
 
-def limpieza_de_datos(vector_tweets):
+    # item.body_tweet = re.sub('\\b' + palabra + '\\b', '', item.body_tweet, flags=re.IGNORECASE)
+
+    devolver = ""
+
+    tweet = tweet.replace("#CorredorAzul","servicio")
+
+    insensitive_string = re.compile(re.escape('corredor azul'), re.IGNORECASE)
+    tweet = insensitive_string.sub('servicio', tweet)
+
+    insensitive_string = re.compile(re.escape('corredorazul'), re.IGNORECASE)
+    tweet = insensitive_string.sub('servicio', tweet)
+
+    for word in tweet.split():
+        if("#" in word):
+            continue
+
+        if("@" in word):
+            continue
+
+        if ("http://" in word):
+            continue
+
+        if(devolver == ""):
+            devolver = word
+        else:
+            devolver = " " + word
+
+
+    return devolver
+
+
+def limpieza_de_datos(vector_tweets,fuente):
     dev = []
     porcentaje = 0
 
     for var_json in vector_tweets:
 
-        item = Tweet(var_json)
+        item = Tweet()
+        if(fuente == "txt"):
+            item.load_json(var_json)
+        else:
+            try:
+                if(len(var_json.split("|")) == 8):
+                    item.load_csv(var_json.split("|"))
+                else:
+                    continue
+            except:
+                continue
 
-        # Eliminar RT
-        if (item.esRT):
-            continue
+        if(fuente == "txt"):
+            # Eliminar RT
+            if (item.esRT):
+                continue
+        else:
+            if( item.esRT == 1):
+                continue
 
         # Valorizacion automatica por los emoticones en el body_tweet :) :D =) =( :(
         happy_faces = [':)', ':D', '=)', '(:', '(=', ';)']
@@ -210,49 +277,53 @@ def limpieza_de_datos(vector_tweets):
         else:
             item.estado = 0
 
-
-        # Limpieza de Usuarios (Se procederá a eliminar a los usuarios en los textos)
-        for user in var_json["entities"]["user_mentions"]:
-            usuario = "@" + user["screen_name"]           
-            item.body_tweet = item.body_tweet.replace(usuario.encode('utf-8'),'')
-
-
-        # Limpieza de links (Se prodecerá a eliminar los links en los textos)
-        for url in var_json["entities"]["urls"]:
-            item.body_tweet = item.body_tweet.replace(url["url"].encode('utf-8'),'')
+        if (fuente == "txt"):
+            # Limpieza de Usuarios (Se procederá a eliminar a los usuarios en los textos)
+            for user in var_json["entities"]["user_mentions"]:
+                usuario = "@" + user["screen_name"]           
+                item.body_tweet = item.body_tweet.replace(usuario.encode('utf-8'),'')
 
 
-        # Limpieza de hashtags (Se reemplaza #CorredorAzul por servicio y tambien 'corredor azul' y 'corredorazul' y se eliminan los restantes)
-        #item.body_tweet = item.body_tweet.decode('unicode_escape').encode('ascii','replace')
-
-        item.body_tweet = item.body_tweet.replace("#CorredorAzul","servicio")
-
-        insensitive_string = re.compile(re.escape('corredor azul'), re.IGNORECASE)
-        item.body_tweet = insensitive_string.sub('servicio', item.body_tweet)
-
-        insensitive_string = re.compile(re.escape('corredorazul'), re.IGNORECASE)
-        item.body_tweet = insensitive_string.sub('servicio', item.body_tweet)
-
-        for tag in var_json["entities"]["hashtags"]:
-            hashtag = "#" + tag["text"].encode('utf-8')
-            item.body_tweet = item.body_tweet.replace(hashtag,'')
+            # Limpieza de links (Se prodecerá a eliminar los links en los textos)
+            for url in var_json["entities"]["urls"]:
+                item.body_tweet = item.body_tweet.replace(url["url"].encode('utf-8'),'')
 
 
-        # Limpieza de fotos (Se borrará el link de la foto ubicado en el texto)
-        if "extended_entities" in var_json.keys():
-            for media in var_json["extended_entities"]["media"]:
-                item.body_tweet = item.body_tweet.replace(media["url"].encode('utf-8'),'')
+            # Limpieza de hashtags (Se reemplaza #CorredorAzul por servicio y tambien 'corredor azul' y 'corredorazul' y se eliminan los restantes)
+            #item.body_tweet = item.body_tweet.decode('unicode_escape').encode('ascii','replace')
+
+            item.body_tweet = item.body_tweet.replace("#CorredorAzul","servicio")
+
+            insensitive_string = re.compile(re.escape('corredor azul'), re.IGNORECASE)
+            item.body_tweet = insensitive_string.sub('servicio', item.body_tweet)
+
+            insensitive_string = re.compile(re.escape('corredorazul'), re.IGNORECASE)
+            item.body_tweet = insensitive_string.sub('servicio', item.body_tweet)
+
+            for tag in var_json["entities"]["hashtags"]:
+                hashtag = "#" + tag["text"].encode('utf-8')
+                item.body_tweet = item.body_tweet.replace(hashtag,'')
 
 
+            # Limpieza de fotos (Se borrará el link de la foto ubicado en el texto)
+            if "extended_entities" in var_json.keys():
+                for media in var_json["extended_entities"]["media"]:
+                    item.body_tweet = item.body_tweet.replace(media["url"].encode('utf-8'),'')
+
+        else:
+            # Limpieza a la mala del CSV
+            item.body_tweet = limpia_mal(item.body_tweet)
+
+        
         # LimpiezaNLTK
         item.body_tweet = limpiezaNLTK(item.body_tweet)
+        
 
 
         # Limpieza de palabras con longitud menor a 3
         for palabra in item.body_tweet.split():
             if (len(palabra) < 3):
-                insensitive_string = re.compile(re.escape(palabra), re.IGNORECASE)
-                item.body_tweet = insensitive_string.sub('', item.body_tweet)
+                item.body_tweet = re.sub('\\b' + palabra + '\\b', '', item.body_tweet, flags=re.IGNORECASE)
 
 
         # Guardar la cantidad de terminos que quedaron
@@ -279,7 +350,6 @@ def main():
 
     print "Procesando..."
 
-
     output = open(ARCHIVO_SALIDA, 'wb')
     writer = csv.writer(output, delimiter=DELIMITER)
 
@@ -297,21 +367,40 @@ def main():
         vector_tweets_limpio    = []    # Arreglo de Tweets purificados
         vector_tweets_sequence  = []    # Arreglo de Tweets.to_sequence()
 
+
+        # Determino la fuente de donde viene (csv, txt)
+        fuente = ""
+        if ('.csv' in in_file):
+            fuente = "csv"
+            print "Archivo tipo CSV"
+        else:
+            fuente = "txt"
+            print "Archivo tipo JSON"
+
+
+
         for line in lines:
 
-            if ('{' in line):
+            if (fuente == "txt"):
+                if ('{' in line):
+                    try:
+                        var_json        = json.loads(line)
+                        vector_tweets.append(var_json)
+                    except:
+                        pass
+            else:
+                if (line[0] == '"'):
+                    line = line[1:-3]
+                if(len(line) > 10):
+                    vector_tweets.append(line)
 
-                try:
-                    var_json        = json.loads(line)
-                    vector_tweets.append(var_json)
-                except:
-                    pass
 
-        vector_tweets_limpio    = limpieza_de_datos(vector_tweets)
+        vector_tweets_limpio    = limpieza_de_datos(vector_tweets,fuente)
         vector_tweets_sequence  = sequenciar_tweets(vector_tweets_limpio,1)
 
+
         writer.writerows(vector_tweets_sequence)
-        writer_original.writerows(sequenciar_tweets(limpieza_retweets(vector_tweets),2))    
+        writer_original.writerows(sequenciar_tweets(limpieza_retweets(vector_tweets,fuente),2))    
 
 
 
