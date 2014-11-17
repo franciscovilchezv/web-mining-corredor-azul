@@ -27,6 +27,14 @@ ARCHIVOS_ENTRADA = [
     "../Search/output.csv"
 ]
 
+CARACTERES = [
+    '“',
+    '¿',
+    '►',
+    '¡',
+    '►'
+]
+
 class Tweet:
 
     id_tweet    = None
@@ -164,6 +172,9 @@ def limpiezaNLTK(body_tweet):
 
     #remove punctuation and split into seperate words
     scentence = scentence.translate(string.maketrans("",""), string.punctuation)
+    for chara in CARACTERES:
+        scentence.replace(chara,' ')
+
 
     # split
     words = scentence.split() #re.findall(r'\w+', scentence,flags =  0) 
@@ -219,7 +230,7 @@ def limpia_mal(tweet):
         if(devolver == ""):
             devolver = word
         else:
-            devolver = " " + word
+            devolver = devolver + " " + word
 
 
     return devolver
