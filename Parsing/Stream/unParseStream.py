@@ -74,7 +74,7 @@ def main():
 	
 	#importando el tagger en español de Stanford NLP
 	from nltk.tag.stanford import POSTagger
-	st = POSTagger('/usr/share/stanford-postagger-full-2014-08-27/models/spanish-distsim.tagger','/usr/share/stanford-postagger-full-2014-08-27/stanford-postagger-3.4.1.jar') 
+	st = POSTagger('/usr/share/stanford-postagger/models/english-bidirectional-distsim.tagger','/usr/share/stanford-postagger/stanford-postagger.jar') 
 	
 	for tweet in tweets:		
 		#Ejemplo: st.tag('What is the airspeed of an unladen swallow ?'.split())
