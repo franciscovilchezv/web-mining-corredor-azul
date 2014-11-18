@@ -176,7 +176,9 @@ def limpiezaNLTK(body_tweet):
     scentence = body_tweet
 
     #remove punctuation and split into seperate words
-    scentence = scentence.translate(string.maketrans("",""), string.punctuation)
+    regex_punctuation = re.compile('[%s]' % re.escape(string.punctuation))
+    scentence = regex_punctuation.sub(' ', scentence)
+    #scentence = scentence.translate(string.maketrans("",""), string.punctuation)
 
     for chara in CARACTERES:
         scentence.replace(chara,' ')
@@ -186,13 +188,15 @@ def limpiezaNLTK(body_tweet):
 
     #Remove numbers
     scentence = re.sub('[0-9]', '', scentence)
+    scentence = re.sub(ur'(?iu)[¿¡´`“”►«»·]', '', scentence.decode('utf-8')).encode('utf-8')
+    #scentence = regex.sub(u'[^\p{Spanish}\p{Zs}]', '', scentence.decode('utf-8')).encode('utf-8')
 
     #We only want to work with lowercase for the comparisons
     #scentence = scentence.lower()
     #Para convertir a minusculas las palabras acentuadas y la Ñ
     scentence = scentence.decode('utf-8').lower().encode('utf-8')
-
-    scentence = re.sub('[¿¡´`“”►«»]', '', scentence)
+    scentence = re.sub(ur'(?iu)[^a-záéíóúñü ]', '', scentence.decode('utf-8')).encode('utf-8')
+    #scentence = re.sub('[¿¡´`“”►«»]', '', scentence, re.UNICODE)
 
     # split
     words = scentence.split() #re.findall(r'\w+', scentence,flags =  0)
@@ -230,6 +234,7 @@ def limpia_mal(tweet):
     devolver = ""
 
     tweet = tweet.replace("#CorredorAzul","servicio")
+    tweet = tweet.replace("#corredorazul","servicio")
 
     insensitive_string = re.compile(re.escape('corredor azul'), re.IGNORECASE)
     tweet = insensitive_string.sub('servicio', tweet)
