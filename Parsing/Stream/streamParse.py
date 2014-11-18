@@ -11,12 +11,13 @@ import unicodedata
 import csv
 
 import re
+#import regex
 from nltk.corpus import stopwords
 
 DELIMITER = '|'
 
 ARCHIVO_SALIDA_ORIGINAL = "Corredor Azul/Modificados/Dias/corredor_azul_stream.csv"
-ARCHIVO_SALIDA = 'Corredor Azul/Modificados/Dias/output.csv'
+ARCHIVO_SALIDA = 'Corredor Azul/Modificados/Dias/output_vAO.csv'
 
 ARCHIVOS_ENTRADA = [
     "Corredor Azul/Modificados/Dias/1/1.txt",
@@ -32,8 +33,15 @@ CARACTERES = [
     '¿',
     '►',
     '¡',
-    '►'
+    '“',
+    '”',
+    '«',
+    '»',
+    '´',
+    '`',
+    '’'
 ]
+CARACTERES_UTF8 = [u'►', u'“', u'”', u'’', u'´', u'`', u'¿', u'¡', u'«', u'»']
 
 class Tweet:
 
@@ -167,24 +175,36 @@ def limpiezaNLTK(body_tweet):
     
     scentence = body_tweet
 
-    #We only want to work with lowercase for the comparisons
-    scentence = scentence.lower()
-
     #remove punctuation and split into seperate words
     scentence = scentence.translate(string.maketrans("",""), string.punctuation)
+
     for chara in CARACTERES:
         scentence.replace(chara,' ')
+    #for chara in CARACTERES_UTF8:
+    #    scentence.decode('utf-8').replace(chara,' ').encode('utf-8')
+        #scentence.replace(chara,' ')
 
+    #Remove numbers
+    scentence = re.sub('[0-9]', '', scentence)
+
+    #We only want to work with lowercase for the comparisons
+    #scentence = scentence.lower()
+    #Para convertir a minusculas las palabras acentuadas y la Ñ
+    scentence = scentence.decode('utf-8').lower().encode('utf-8')
+
+    scentence = re.sub('[¿¡´`“”►«»]', '', scentence)
 
     # split
-    words = scentence.split() #re.findall(r'\w+', scentence,flags =  0) 
+    words = scentence.split() #re.findall(r'\w+', scentence,flags =  0)
 
     #This is the simple way to remove stop words
     important_words=[]
     cadena = ""
     for word in words:
         try:
-            if word not in stopwords.words('spanish'):
+            #if word not in stopwords.words('spanish'):
+            if word.decode('utf-8') not in stopwords.words('spanish'):
+                #print word.decode('utf-8'), word
                 important_words.append(word)
                 cadena = cadena + " " + word
         except:
@@ -328,14 +348,11 @@ def limpieza_de_datos(vector_tweets,fuente):
         
         # LimpiezaNLTK
         item.body_tweet = limpiezaNLTK(item.body_tweet)
-        
-
 
         # Limpieza de palabras con longitud menor a 3
         for palabra in item.body_tweet.split():
-            if (len(palabra) < 3):
+            if (len(palabra.decode('utf-8')) < 3):
                 item.body_tweet = re.sub('\\b' + palabra + '\\b', '', item.body_tweet, flags=re.IGNORECASE)
-
 
         # Guardar la cantidad de terminos que quedaron
         item.cant_terminos = len(item.body_tweet.split())
