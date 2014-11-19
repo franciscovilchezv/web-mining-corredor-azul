@@ -17,7 +17,7 @@ from nltk.corpus import stopwords
 DELIMITER = '|'
 
 ARCHIVO_SALIDA_ORIGINAL = "Corredor Azul/Modificados/Dias/corredor_azul_stream.csv"
-ARCHIVO_SALIDA = 'Corredor Azul/Modificados/Dias/output_vAO.csv'
+ARCHIVO_SALIDA = 'Corredor Azul/Modificados/Dias/output_final_AO.csv'
 
 ARCHIVOS_ENTRADA = [
     "Corredor Azul/Modificados/Dias/1/1.txt",
@@ -25,7 +25,7 @@ ARCHIVOS_ENTRADA = [
     "Corredor Azul/Modificados/Dias/3/3.txt",
     "Corredor Azul/Modificados/Dias/4/4.txt",
     "Corredor Azul/Modificados/Dias/5/5.txt",
-    "../Search/output.csv"
+    "../Search/output_final.csv"
 ]
 
 CARACTERES = [
@@ -206,9 +206,7 @@ def limpiezaNLTK(body_tweet):
     cadena = ""
     for word in words:
         try:
-            #if word not in stopwords.words('spanish'):
             if word.decode('utf-8') not in stopwords.words('spanish'):
-                #print word.decode('utf-8'), word
                 important_words.append(word)
                 cadena = cadena + " " + word
         except:
