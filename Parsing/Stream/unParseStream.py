@@ -98,6 +98,6 @@ def main():
         filewriter.writerow(tweet.to_CSV())
         if n % 100 == 0: print n
     print "Done"
-    close(output)
+    output.close()
 
 main()
