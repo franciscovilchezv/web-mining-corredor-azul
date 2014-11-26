@@ -107,8 +107,8 @@ def main():
         n+=1
         print tweet.body_tweet
 
-        #Aqui: procesar los 3 archivos con diccionarios para: "processed_text"
-        #Tambien procesar usando el POSTagger
+        #Aqui: procesar los 3 archivos con diccionarios para: "spanish_text"
+        #Tambien procesar usando el POSTagger, incrementado por adjetivos
 
         filewriter.writerow(tweet.to_CSV())
         if n % 100 == 0: print n
