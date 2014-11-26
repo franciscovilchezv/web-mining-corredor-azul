@@ -88,24 +88,23 @@ def main():
 
     print "Inicio..."
     with open("tweets_a_procesar.csv", 'rb') as csvfile:
-        lines = csvfile.readlines()
-    # En esta variable estan todos los tweets
-    tweets = []
-    for line in lines:
-        line = line.replace("\n","")
-        line = line.replace("\r","")
-        fields = line.split('|')    
-        tweet = Tweet(fields)
-        tweets.append(tweet)
+        lines = csv.reader(csvfile, delimiter=DELIMITER, quotechar="'")
+        # En esta variable estan todos los tweets
+        # Lo he modificado para que lea por separador y el texto entre comilla simple, xq en algunos tweets originales hay "|" y se malogra todo
+        tweets = []
+        for line in lines:
+            tweet = Tweet(line)
+            print tweet.id_tweet, tweet.auto_polarity
+            tweets.append(tweet)
     
     #archivo de salida
     output = open("tweets_procesados_diccionario.csv", 'wb')
-    filewriter = csv.writer(output, delimiter=DELIMITER)
+    filewriter = csv.writer(output, delimiter=DELIMITER, quotechar="'")
 
     n=0
     for tweet in tweets:
         n+=1
-        print tweet.body_tweet
+        #print tweet.body_tweet
 
         #Aqui: procesar los 3 archivos con diccionarios para: "spanish_text"
         #Tambien procesar usando el POSTagger, incrementado por adjetivos
