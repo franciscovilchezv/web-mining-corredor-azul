@@ -33,6 +33,8 @@ class Tweet:
     polarity_dic2_pos = None #fullStrenght dictionary usando POS Tagger
     polarity_dic3_pos = None #mediumStrenght dictionary usando POS Tagger
 
+    important_words = None
+
 
     def __init__(self,post):
         self.id_tweet    = post[0]
@@ -52,6 +54,10 @@ class Tweet:
 
         self.word_count = post[11]
         self.spanish_count = post[12]
+        try:
+            self.important_words = post[13]
+        except:
+            pass
 
     
     def to_CSV(self):
