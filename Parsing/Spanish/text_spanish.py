@@ -90,7 +90,7 @@ def process_spanish_owned():
                     processed.append(word)
                     if word != 'bus':
                         word_singular = inflector.singularize(word)
-                        word_singular = word_singular.replace(u'\xF3'.encode('utf-8'), 'o')
+                        #word_singular = word_singular.replace(u'\xF3'.encode('utf-8'), 'o')
                     else:
                         word_singular = word
                     word_stemmed = stemmer.stem(word.decode('utf-8')).encode('utf-8')
