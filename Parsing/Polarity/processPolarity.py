@@ -87,30 +87,131 @@ class Tweet:
 def main():
 
     print "Inicio..."
-    with open("tweets_a_procesar.csv", 'rb') as csvfile:
+    with open("tweets_a_procesar_v2.csv", 'rb') as csvfile:
         lines = csv.reader(csvfile, delimiter=DELIMITER, quotechar="'")
         # En esta variable estan todos los tweets
         # Lo he modificado para que lea por separador y el texto entre comilla simple, xq en algunos tweets originales hay "|" y se malogra todo
         tweets = []
         for line in lines:
             tweet = Tweet(line)
-            print tweet.id_tweet, tweet.auto_polarity
+            #print tweet.id_tweet + " " + tweet.auto_polarity
+            #print tweet.processed_text.split()
             tweets.append(tweet)
     
     #archivo de salida
     output = open("tweets_procesados_diccionario.csv", 'wb')
     filewriter = csv.writer(output, delimiter=DELIMITER, quotechar="'")
 
+
+    # Cargar de diccionarios
+
+    # El Polar
+
+    elHPolar = {}
+    with open("ElhPolar.txt",'r') as f:
+        lines = f.readlines()
+
+    for line in lines:
+        if(len(line) < 2):
+            break
+        
+        valores = line.split()
+        valor = 0
+
+        if (valores[1] == "positive"):
+            valor = 1
+        else:
+            valor = -1
+
+        elHPolar[valores[0]] = valor
+
+    # mediumStrength
+
+    mediumStrength = {}
+
+    with open("mediumStrengthLexicon.txt",'r') as f:
+        lines = f.readlines()
+
+    for line in lines:
+
+        if(len(line) < 2):
+            break
+
+        valores = line.split()
+        valor = 0
+
+        if(len(valores) == 4):
+            cad_valor = valores[3]
+        else:
+            cad_valor = valores[2]
+
+        if(cad_valor == "pos"):
+            valor = 1
+        else:
+            valor = -1
+
+        mediumStrength[valores[0]] = valor
+        #print valores[0]
+
+    #print mediumStrength
+
+
+
+    # full Strength
+
+    fullStrenght = {}
+
+    with open("fullStrengthLexicon.txt",'r') as f:
+        lines = f.readlines()
+
+    for line in lines:
+        if(len(line) < 2):
+            break
+
+        valores = line.split()
+        valor = 0
+
+        if(len(valores) == 4):
+            cad_valor = valores[3]
+        else:
+            cad_valor = valores[2]
+
+        if(cad_valor == "pos"):
+            valor = 1
+        else:
+            valor = -1
+
+        fullStrenght[valores[0]] = valor
+        #print valores[0]
+
+    #print fullStrenght
+
     n=0
     for tweet in tweets:
         n+=1
         #print tweet.body_tweet
 
+        palabras = tweet.processed_text.split()
+
+        tweet.polarity_dic1 = 0
+        tweet.polarity_dic2 = 0
+        tweet.polarity_dic3 = 0
+
+        for word in palabras:
+            if(word in elHPolar.keys()):
+                tweet.polarity_dic1 = tweet.polarity_dic1 + elHPolar[word]
+                
+            if(word in mediumStrength.keys()):
+                tweet.polarity_dic2 = tweet.polarity_dic2 + mediumStrength[word]
+
+            if(word in fullStrenght.keys()):
+                tweet.polarity_dic3 = tweet.polarity_dic3 + fullStrenght[word]
+
         #Aqui: procesar los 3 archivos con diccionarios para: "spanish_text"
         #Tambien procesar usando el POSTagger, incrementado por adjetivos
 
         filewriter.writerow(tweet.to_CSV())
-        if n % 100 == 0: print n
+        #if n % 100 == 0: print n
     print "Done"
 
     output.close()

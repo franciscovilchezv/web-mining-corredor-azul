@@ -72,7 +72,7 @@ def main():
     
     #archivo de salida
     output = open("Corredor Azul/Modificados/Dias/output_tagged.csv", 'wb')
-    filewriter = csv.writer(output, delimiter=DELIMITER)
+    filewriter = csv.writer(output, delimiter=DELIMITER, quotechar="'")
 
     #importando el tagger en español de Stanford NLP
     from nltk.tag.stanford import POSTagger

@@ -382,10 +382,10 @@ def main():
     print "Procesando..."
 
     output = open(ARCHIVO_SALIDA, 'wb')
-    writer = csv.writer(output, delimiter=DELIMITER)
+    writer = csv.writer(output, delimiter=DELIMITER, quotechar="'")
 
     output_original = open(ARCHIVO_SALIDA_ORIGINAL, 'wb')
-    writer_original = csv.writer(output_original, delimiter=DELIMITER)
+    writer_original = csv.writer(output_original, delimiter=DELIMITER, quotechar="'")
 
     for in_file in ARCHIVOS_ENTRADA:
 
