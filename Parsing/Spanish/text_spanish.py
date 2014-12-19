@@ -112,5 +112,22 @@ def process_spanish_owned():
     fout_sing.close()
     fout_stem.close()
 
+def twitter_datetime():
+    from datetime import datetime
+    file = open('fechas_twitter.txt', 'r')
+    fout = open('fechas_python.txt', 'w')
+    for line in file:
+        line = line.replace('\n', '')
+        if len(line) > 20:
+            #print line
+            ts = datetime.strptime(line, '%a %b %d %H:%M:%S +0000 %Y')
+            #print ts
+            fout.write(str(ts)+'\n')
+            #ts = datetime.strftime('%m-%d-%Y %H:%M:%S', ts)
+            #print ts
+        else:
+            #print line
+            fout.write(line+'\n')
 
-process_spanish_owned()
+#process_spanish_owned()
+twitter_datetime()
